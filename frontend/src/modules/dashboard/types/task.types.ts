@@ -28,6 +28,7 @@ export const TaskSchema = z.object({
   completed: z.boolean().default(false),
   createdDate: z.date(),
   modifiedDate: z.date(),
+  order: z.number().int().min(0, "Order must be non-negative").default(0),
 });
 
 /**
@@ -38,6 +39,7 @@ export const CreateTaskSchema = TaskSchema.omit({
   completed: true,
   createdDate: true,
   modifiedDate: true,
+  order: true,
 });
 
 /**

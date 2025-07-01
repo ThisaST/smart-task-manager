@@ -2,8 +2,9 @@ import { useEffect, useCallback, useMemo, useState } from "react"
 import { useTaskStore } from "@/store/taskStore"
 import { TaskCreateModal } from "../components/TaskCreateModal"
 import { TaskFilterBar } from "../components/TaskFilterBar"
+import { DragDropTaskList } from "../components/DragDropTaskList"
 import { Button } from "@/components/ui/button"
-import { Plus, Trash2, Edit3, ChevronUp, ChevronDown, ChevronsUpDown } from "lucide-react"
+import { Plus, Trash2, Edit3, ChevronUp, ChevronDown, ChevronsUpDown, List, Grip } from "lucide-react"
 import type { Task, FilterConfig, Priority } from "../types/task.types"
 import { format, isToday, isPast } from 'date-fns'
 import { useTaskOperations } from '../hooks/useTaskOperations'
@@ -44,6 +45,9 @@ export function TaskListContainer() {
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedTask, setSelectedTask] = useState<Task | undefined>(undefined)
+
+  // View mode state
+  const [viewMode, setViewMode] = useState<'table' | 'dragdrop'>('table')
 
   // Filter state
   const [filters, setFilters] = useState<FilterConfig>({
@@ -185,6 +189,12 @@ export function TaskListContainer() {
   const sortedTasks = useMemo(() => {
     const sorted = [...filteredTasks]
 
+    // In drag-drop mode, always sort by order field
+    if (viewMode === 'dragdrop') {
+      sorted.sort((a, b) => a.order - b.order)
+      return sorted
+    }
+
     if (sortConfig.direction) {
       sorted.sort((a, b) => {
         let aValue: string | number | null
@@ -243,7 +253,7 @@ export function TaskListContainer() {
     }
 
     return sorted
-  }, [filteredTasks, sortConfig])
+  }, [filteredTasks, sortConfig, viewMode])
 
   if (isLoading) {
     return (
@@ -301,13 +311,36 @@ export function TaskListContainer() {
             }
           </p>
         </div>
-        <Button 
-          onClick={handleCreate}
-          className="bg-primary text-primary-foreground hover:bg-primary/90"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Add Task
-        </Button>
+        <div className="flex items-center gap-2">
+          {/* View Mode Toggle */}
+          <div className="flex items-center border rounded-lg p-1">
+            <Button
+              variant={viewMode === 'table' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('table')}
+              className="h-8 px-3"
+            >
+              <List className="w-4 h-4 mr-1" />
+              Table
+            </Button>
+            <Button
+              variant={viewMode === 'dragdrop' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('dragdrop')}
+              className="h-8 px-3"
+            >
+              <Grip className="w-4 h-4 mr-1" />
+              Drag & Drop
+            </Button>
+          </div>
+          <Button 
+            onClick={handleCreate}
+            className="bg-primary text-primary-foreground hover:bg-primary/90"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Add Task
+          </Button>
+        </div>
       </div>
 
       {/* Filter Bar */}
@@ -319,7 +352,7 @@ export function TaskListContainer() {
         />
       )}
 
-      {/* Tasks Table */}
+      {/* Tasks Content */}
       {sortedTasks.length === 0 ? (
         <div className="text-center py-12">
           <div className="text-muted-foreground mb-4">
@@ -339,26 +372,37 @@ export function TaskListContainer() {
             )}
           </div>
         </div>
+      ) : viewMode === 'dragdrop' ? (
+        // Drag & Drop View
+        <DragDropTaskList
+          tasks={sortedTasks}
+          onToggleComplete={handleToggleComplete}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          isLoading={isLoading}
+          error={error}
+        />
       ) : (
+        // Table View
         <div className="bg-card border rounded-lg overflow-hidden shadow-sm">
           <Table>
-                          <TableHeader>
-                <TableRow className="bg-muted/30 border-b-2">
-                  <SortableHeader field={SortField.COMPLETED} className="w-12">
-                    <span className="sr-only">Status</span>
-                  </SortableHeader>
-                  <SortableHeader field={SortField.TITLE}>
-                    Task
-                  </SortableHeader>
-                  <SortableHeader field={SortField.PRIORITY} className="w-32">
-                    Priority
-                  </SortableHeader>
-                  <SortableHeader field={SortField.DUE_DATE} className="w-32">
-                    Due Date
-                  </SortableHeader>
-                  <TableHead className="w-20 text-right font-semibold">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
+            <TableHeader>
+              <TableRow className="bg-muted/30 border-b-2">
+                <SortableHeader field={SortField.COMPLETED} className="w-12">
+                  <span className="sr-only">Status</span>
+                </SortableHeader>
+                <SortableHeader field={SortField.TITLE}>
+                  Task
+                </SortableHeader>
+                <SortableHeader field={SortField.PRIORITY} className="w-32">
+                  Priority
+                </SortableHeader>
+                <SortableHeader field={SortField.DUE_DATE} className="w-32">
+                  Due Date
+                </SortableHeader>
+                <TableHead className="w-20 text-right font-semibold">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
             <TableBody>
               {sortedTasks.map((task) => {
                 const dueDateInfo = formatDueDate(task.dueDate)

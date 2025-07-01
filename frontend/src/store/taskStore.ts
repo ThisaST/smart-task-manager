@@ -18,6 +18,7 @@ interface TaskActions {
   updateTask: (task: Task) => void
   deleteTask: (taskId: string) => void
   toggleTaskComplete: (taskId: string) => void
+  reorderTasks: (dragIndex: number, hoverIndex: number) => void
   
   // Filters
   setFilters: (filters: Partial<FilterConfig>) => void
@@ -45,6 +46,7 @@ const sampleTasks: Task[] = [
     dueDate: new Date('2024-12-28'),
     createdDate: new Date('2024-12-15'),
     modifiedDate: new Date('2024-12-15'),
+    order: 0,
   },
   {
     id: '2', 
@@ -55,6 +57,7 @@ const sampleTasks: Task[] = [
     dueDate: new Date('2024-12-23'),
     createdDate: new Date('2024-12-10'),
     modifiedDate: new Date('2024-12-18'),
+    order: 1,
   },
   {
     id: '3',
@@ -65,6 +68,7 @@ const sampleTasks: Task[] = [
     dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
     createdDate: new Date('2024-12-12'),
     modifiedDate: new Date('2024-12-12'),
+    order: 2,
   },
   {
     id: '4',
@@ -75,6 +79,7 @@ const sampleTasks: Task[] = [
     dueDate: new Date('2025-01-15'),
     createdDate: new Date('2024-12-14'),
     modifiedDate: new Date('2024-12-14'),
+    order: 3,
   },
   {
     id: '5',
@@ -85,6 +90,7 @@ const sampleTasks: Task[] = [
     dueDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
     createdDate: new Date('2024-12-13'),
     modifiedDate: new Date('2024-12-13'),
+    order: 4,
   },
   {
     id: '6',
@@ -95,6 +101,7 @@ const sampleTasks: Task[] = [
     dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     createdDate: new Date('2024-12-14'),
     modifiedDate: new Date('2024-12-14'),
+    order: 5,
   },
   {
     id: '7',
@@ -105,6 +112,7 @@ const sampleTasks: Task[] = [
     dueDate: new Date(),
     createdDate: new Date('2024-12-11'),
     modifiedDate: new Date('2024-12-11'),
+    order: 6,
   },
   {
     id: '8',
@@ -115,6 +123,7 @@ const sampleTasks: Task[] = [
     dueDate: new Date('2024-12-22'),
     createdDate: new Date('2024-12-09'),
     modifiedDate: new Date('2024-12-16'),
+    order: 7,
   },
   {
     id: '9',
@@ -125,6 +134,7 @@ const sampleTasks: Task[] = [
     dueDate: new Date('2024-12-29'),
     createdDate: new Date('2024-12-13'),
     modifiedDate: new Date('2024-12-13'),
+    order: 8,
   },
   {
     id: '10',
@@ -135,6 +145,7 @@ const sampleTasks: Task[] = [
     dueDate: new Date('2025-01-10'),
     createdDate: new Date('2024-12-12'),
     modifiedDate: new Date('2024-12-12'),
+    order: 9,
   },
   {
     id: '11',
@@ -145,6 +156,7 @@ const sampleTasks: Task[] = [
     dueDate: new Date('2024-12-31'),
     createdDate: new Date('2024-12-10'),
     modifiedDate: new Date('2024-12-10'),
+    order: 10,
   },
   {
     id: '12',
@@ -155,6 +167,7 @@ const sampleTasks: Task[] = [
     dueDate: new Date('2025-01-05'),
     createdDate: new Date('2024-12-08'),
     modifiedDate: new Date('2024-12-08'),
+    order: 11,
   },
   {
     id: '13',
@@ -165,6 +178,7 @@ const sampleTasks: Task[] = [
     dueDate: new Date('2024-12-24'),
     createdDate: new Date('2024-12-07'),
     modifiedDate: new Date('2024-12-15'),
+    order: 12,
   },
   {
     id: '14',
@@ -175,6 +189,7 @@ const sampleTasks: Task[] = [
     dueDate: new Date('2024-12-26'),
     createdDate: new Date('2024-12-06'),
     modifiedDate: new Date('2024-12-06'),
+    order: 13,
   },
   {
     id: '15',
@@ -185,6 +200,7 @@ const sampleTasks: Task[] = [
     dueDate: new Date('2025-01-08'),
     createdDate: new Date('2024-12-05'),
     modifiedDate: new Date('2024-12-05'),
+    order: 14,
   },
   {
     id: '16',
@@ -195,6 +211,7 @@ const sampleTasks: Task[] = [
     dueDate: new Date('2025-01-15'),
     createdDate: new Date('2024-12-04'),
     modifiedDate: new Date('2024-12-04'),
+    order: 15,
   },
   {
     id: '17',
@@ -205,6 +222,7 @@ const sampleTasks: Task[] = [
     dueDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
     createdDate: new Date('2024-12-03'),
     modifiedDate: new Date('2024-12-03'),
+    order: 16,
   },
   {
     id: '18',
@@ -215,6 +233,7 @@ const sampleTasks: Task[] = [
     dueDate: new Date('2024-12-21'),
     createdDate: new Date('2024-12-02'),
     modifiedDate: new Date('2024-12-14'),
+    order: 17,
   },
   {
     id: '19',
@@ -225,6 +244,7 @@ const sampleTasks: Task[] = [
     dueDate: new Date('2024-12-30'),
     createdDate: new Date('2024-12-01'),
     modifiedDate: new Date('2024-12-01'),
+    order: 18,
   },
   {
     id: '20',
@@ -235,6 +255,7 @@ const sampleTasks: Task[] = [
     dueDate: new Date('2025-01-12'),
     createdDate: new Date('2024-11-30'),
     modifiedDate: new Date('2024-11-30'),
+    order: 19,
   }
 ]
 
@@ -261,6 +282,7 @@ export const useTaskStore = create<TaskStore>()(
             completed: false,
             createdDate: new Date(),
             modifiedDate: new Date(),
+            order: state.tasks.length,
           }
           state.tasks.push(newTask)
         }),
@@ -334,6 +356,7 @@ export const useTaskStore = create<TaskStore>()(
             dueDate: new Date(Date.now() + Math.random() * 30 * 24 * 60 * 60 * 1000),
             createdDate: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000),
             modifiedDate: new Date(),
+            order: i,
           }))
           
           state.tasks = tasks
@@ -343,6 +366,19 @@ export const useTaskStore = create<TaskStore>()(
         clearTestData: () => set((state) => {
           state.tasks = []
           state.isTestDataActive = false
+        }),
+
+        reorderTasks: (dragIndex: number, hoverIndex: number) => set((state) => {
+          const tasks = state.tasks
+          const [draggedTask] = tasks.splice(dragIndex, 1)
+          tasks.splice(hoverIndex, 0, draggedTask)
+          
+          // Update the order property for all tasks to reflect new positions
+          tasks.forEach((task, index) => {
+            task.order = index
+          })
+          
+          state.tasks = tasks
         }),
       })),
       {
