@@ -195,6 +195,10 @@
   .bg-status-review { background-color: rgb(var(--color-status-review)); }
   .bg-status-done { background-color: rgb(var(--color-status-done)); }
 
+  /* Additional theme utilities */
+  .text-warning { color: rgb(var(--color-warning)); }
+  .text-warning-foreground { color: rgb(var(--color-warning-foreground)); }
+
   .text-background { color: rgb(var(--color-background)); }
   .text-foreground { color: rgb(var(--color-foreground)); }
   .text-card { color: rgb(var(--color-card)); }
@@ -218,7 +222,14 @@
   .text-info { color: rgb(var(--color-info)); }
   .text-info-foreground { color: rgb(var(--color-info-foreground)); }
 
+  .text-priority-low { color: rgb(var(--color-priority-low)); }
+  .text-priority-medium { color: rgb(var(--color-priority-medium)); }
+  .text-priority-high { color: rgb(var(--color-priority-high)); }
+
   .border-border { border-color: rgb(var(--color-border)); }
+  .border-priority-low { border-color: rgb(var(--color-priority-low)); }
+  .border-priority-medium { border-color: rgb(var(--color-priority-medium)); }
+  .border-priority-high { border-color: rgb(var(--color-priority-high)); }
   .border-input { border-color: rgb(var(--color-input)); }
   .border-ring { border-color: rgb(var(--color-ring)); }
 

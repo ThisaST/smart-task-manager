@@ -1,6 +1,7 @@
 import { TaskListContainer } from '@/modules/dashboard'
 import { ThemeToggle } from '@/shared'
 import { useThemeInitializer } from '@/shared/hooks/useThemeInitializer'
+import { Toaster } from '@/components/ui/sonner'
 
 /**
  * Main App component with theme system integration
@@ -31,6 +32,9 @@ function App() {
       <main className="max-w-7xl mx-auto px-4 py-6">
         <TaskListContainer />
       </main>
+
+      {/* Toast Notifications */}
+      <Toaster />
     </div>
   )
 }
