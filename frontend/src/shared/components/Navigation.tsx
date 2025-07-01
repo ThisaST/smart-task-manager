@@ -26,17 +26,15 @@ export function Navigation() {
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           {/* Logo and Title */}
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <CheckSquare className="w-5 h-5 text-primary-foreground" />
-              </div>
-              <h1 className="text-xl font-bold">Task Manager</h1>
+          <div className="flex items-center space-x-2 min-w-0">
+            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center flex-shrink-0">
+              <CheckSquare className="w-5 h-5 text-primary-foreground" />
             </div>
+            <h1 className="text-lg sm:text-xl font-bold truncate">Task Manager</h1>
           </div>
 
-          {/* Navigation Links */}
-          <div className="flex items-center space-x-1">
+          {/* Navigation Links - Hidden on small screens */}
+          <div className="hidden sm:flex items-center space-x-1">
             {navItems.map((item) => {
               const Icon = item.icon
               const isActive = location.pathname === item.path
@@ -49,6 +47,27 @@ export function Navigation() {
                   >
                     <Icon className="w-4 h-4" />
                     <span>{item.label}</span>
+                  </Button>
+                </Link>
+              )
+            })}
+          </div>
+
+          {/* Mobile Navigation - Compact icons only */}
+          <div className="flex sm:hidden items-center space-x-1">
+            {navItems.map((item) => {
+              const Icon = item.icon
+              const isActive = location.pathname === item.path
+              
+              return (
+                <Link key={item.path} to={item.path}>
+                  <Button
+                    variant={isActive ? "default" : "ghost"}
+                    size="sm"
+                    className="h-9 w-9 p-0"
+                    title={item.label}
+                  >
+                    <Icon className="w-4 h-4" />
                   </Button>
                 </Link>
               )

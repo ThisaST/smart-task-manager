@@ -299,32 +299,32 @@ export function TaskListContainer() {
   }
 
   return (
-    <div className="p-6 space-y-6 bg-background min-h-screen">
+    <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 bg-background min-h-screen">
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-4">
+      <div className="space-y-4 sm:space-y-0 sm:flex sm:justify-between sm:items-center">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
           {/* View Mode Toggle */}
-          <div className="flex items-center border rounded-lg p-1">
+          <div className="flex items-center border rounded-lg p-1 w-fit">
             <Button
               variant={viewMode === 'table' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setViewMode('table')}
-              className="h-8 px-3"
+              className="h-8 px-2 sm:px-3 text-xs sm:text-sm"
             >
-              <List className="w-4 h-4 mr-1" />
-              Table
+              <List className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-1" />
+              <span className="hidden sm:inline">Table</span>
             </Button>
             <Button
               variant={viewMode === 'dragdrop' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setViewMode('dragdrop')}
-              className="h-8 px-3"
+              className="h-8 px-2 sm:px-3 text-xs sm:text-sm"
             >
-              <Grip className="w-4 h-4 mr-1" />
-              Drag & Drop
+              <Grip className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-1" />
+              <span className="hidden sm:inline">Drag & Drop</span>
             </Button>
           </div>
-          <p className="text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             {tasks.length === 0 
               ? "No tasks yet. Create your first task!" 
               : `${filteredTasks.filter(t => !t.completed).length} of ${filteredTasks.length} tasks pending`
@@ -334,7 +334,7 @@ export function TaskListContainer() {
         <div className="flex items-center gap-2">
           <Button 
             onClick={handleCreate}
-            className="bg-primary text-primary-foreground hover:bg-primary/90"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto"
           >
             <Plus className="w-4 h-4 mr-2" />
             Add Task
@@ -382,101 +382,180 @@ export function TaskListContainer() {
           error={error}
         />
       ) : (
-        // Table View
-        <div className="bg-card border rounded-lg overflow-hidden shadow-sm">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-muted/30 border-b-2">
-                <SortableHeader field={SortField.COMPLETED} className="w-12">
-                  <span className="sr-only">Status</span>
-                </SortableHeader>
-                <SortableHeader field={SortField.TITLE}>
-                  Task
-                </SortableHeader>
-                <SortableHeader field={SortField.PRIORITY} className="w-32">
-                  Priority
-                </SortableHeader>
-                <SortableHeader field={SortField.DUE_DATE} className="w-32">
-                  Due Date
-                </SortableHeader>
-                <TableHead className="w-20 text-right font-semibold">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {sortedTasks.map((task) => {
-                const dueDateInfo = formatDueDate(task.dueDate)
-                
-                return (
-                  <TableRow 
-                    key={task.id} 
-                    className={cn(
-                      "cursor-pointer hover:bg-muted/30 transition-colors border-b",
-                      task.completed && "opacity-60"
-                    )}
-                    onClick={() => handleEdit(task)}
-                  >
-                    <TableCell onClick={(e) => e.stopPropagation()}>
-                      <Checkbox
-                        checked={task.completed}
-                        onChange={() => handleToggleComplete(task.id)}
-                        className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <div className="space-y-1">
+        // Responsive Task Display
+        <>
+          {/* Mobile Card View */}
+          <div className="block sm:hidden space-y-3">
+            {sortedTasks.map((task) => {
+              const dueDateInfo = formatDueDate(task.dueDate)
+              
+              return (
+                <div 
+                  key={task.id} 
+                  className={cn(
+                    "bg-card border rounded-lg p-4 space-y-3 cursor-pointer hover:bg-muted/30 transition-colors",
+                    task.completed && "opacity-60"
+                  )}
+                  onClick={() => handleEdit(task)}
+                >
+                  {/* Task Header */}
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start space-x-3 min-w-0 flex-1">
+                      <div onClick={(e) => e.stopPropagation()} className="mt-0.5">
+                        <Checkbox
+                          checked={task.completed}
+                          onChange={() => handleToggleComplete(task.id)}
+                          className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                        />
+                      </div>
+                      <div className="min-w-0 flex-1">
                         <div className={cn(
-                          "font-medium",
+                          "font-medium text-sm",
                           task.completed && "line-through text-muted-foreground"
                         )}>
                           {task.title}
                         </div>
                         {task.description && (
-                          <div className="text-sm text-muted-foreground truncate max-w-md">
+                          <div className="text-xs text-muted-foreground mt-1 line-clamp-2">
                             {task.description}
                           </div>
                         )}
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <PriorityBadge priority={task.priority} />
-                    </TableCell>
-                    <TableCell>
-                      <Badge 
-                        variant={dueDateInfo.isOverdue ? "destructive" : dueDateInfo.isToday ? "default" : "outline"}
-                        className={cn(
-                          "font-medium",
-                          !dueDateInfo.isOverdue && !dueDateInfo.isToday && "!bg-slate-200 !text-slate-800 !border-slate-300 dark:!bg-slate-600 dark:!text-slate-200 dark:!border-slate-500"
-                        )}
+                    </div>
+                    <div onClick={(e) => e.stopPropagation()} className="flex items-center space-x-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEdit(task)}
+                        className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
                       >
-                        {dueDateInfo.text}
-                      </Badge>
-                    </TableCell>
-                    <TableCell onClick={(e) => e.stopPropagation()}>
-                      <div className="flex items-center justify-end space-x-1">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleEdit(task)}
-                          className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
+                        <Edit3 className="w-3 h-3" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDelete(task.id)}
+                        className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  {/* Task Details */}
+                  <div className="flex items-center justify-between">
+                    <PriorityBadge priority={task.priority} />
+                    <Badge 
+                      variant={dueDateInfo.isOverdue ? "destructive" : dueDateInfo.isToday ? "default" : "outline"}
+                      className={cn(
+                        "text-xs",
+                        !dueDateInfo.isOverdue && !dueDateInfo.isToday && "!bg-slate-200 !text-slate-800 !border-slate-300 dark:!bg-slate-600 dark:!text-slate-200 dark:!border-slate-500"
+                      )}
+                    >
+                      {dueDateInfo.text}
+                    </Badge>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+
+          {/* Desktop Table View */}
+          <div className="hidden sm:block bg-card border rounded-lg overflow-hidden shadow-sm">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted/30 border-b-2">
+                  <SortableHeader field={SortField.COMPLETED} className="w-12">
+                    <span className="sr-only">Status</span>
+                  </SortableHeader>
+                  <SortableHeader field={SortField.TITLE}>
+                    Task
+                  </SortableHeader>
+                  <SortableHeader field={SortField.PRIORITY} className="w-32">
+                    Priority
+                  </SortableHeader>
+                  <SortableHeader field={SortField.DUE_DATE} className="w-32">
+                    Due Date
+                  </SortableHeader>
+                  <TableHead className="w-20 text-right font-semibold">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {sortedTasks.map((task) => {
+                  const dueDateInfo = formatDueDate(task.dueDate)
+                  
+                  return (
+                    <TableRow 
+                      key={task.id} 
+                      className={cn(
+                        "cursor-pointer hover:bg-muted/30 transition-colors border-b",
+                        task.completed && "opacity-60"
+                      )}
+                      onClick={() => handleEdit(task)}
+                    >
+                      <TableCell onClick={(e) => e.stopPropagation()}>
+                        <Checkbox
+                          checked={task.completed}
+                          onChange={() => handleToggleComplete(task.id)}
+                          className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <div className="space-y-1">
+                          <div className={cn(
+                            "font-medium",
+                            task.completed && "line-through text-muted-foreground"
+                          )}>
+                            {task.title}
+                          </div>
+                          {task.description && (
+                            <div className="text-sm text-muted-foreground truncate max-w-md">
+                              {task.description}
+                            </div>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <PriorityBadge priority={task.priority} />
+                      </TableCell>
+                      <TableCell>
+                        <Badge 
+                          variant={dueDateInfo.isOverdue ? "destructive" : dueDateInfo.isToday ? "default" : "outline"}
+                          className={cn(
+                            "font-medium",
+                            !dueDateInfo.isOverdue && !dueDateInfo.isToday && "!bg-slate-200 !text-slate-800 !border-slate-300 dark:!bg-slate-600 dark:!text-slate-200 dark:!border-slate-500"
+                          )}
                         >
-                          <Edit3 className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDelete(task.id)}
-                          className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                )
-              })}
-            </TableBody>
-          </Table>
-        </div>
+                          {dueDateInfo.text}
+                        </Badge>
+                      </TableCell>
+                      <TableCell onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center justify-end space-x-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEdit(task)}
+                            className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
+                          >
+                            <Edit3 className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDelete(task.id)}
+                            className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )
+                })}
+              </TableBody>
+            </Table>
+          </div>
+        </>
       )}
 
       {/* Single Modal for both Create and Edit */}

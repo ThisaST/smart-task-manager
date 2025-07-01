@@ -32,68 +32,70 @@ export function TaskFilterBar({ filters, onFiltersChange, taskCounts }: TaskFilt
   const hasActiveFilters = filters.status !== 'all' || filters.priority !== 'all'
 
   return (
-    <div className="flex items-center gap-4 p-4 bg-muted/30 border-b">
-      <div className="flex items-center gap-2">
+    <div className="space-y-3 sm:space-y-0 sm:flex sm:items-center sm:gap-4 p-3 sm:p-4 bg-muted/30 border-b">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-2">
         <span className="text-sm font-medium text-foreground">Filter by:</span>
         
-        {/* Status Filter */}
-        <Select value={filters.status} onValueChange={handleStatusChange}>
-          <SelectTrigger className="w-32">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">
-              All ({taskCounts.total})
-            </SelectItem>
-            <SelectItem value="pending">
-              Pending ({taskCounts.pending})
-            </SelectItem>
-            <SelectItem value="completed">
-              Completed ({taskCounts.completed})
-            </SelectItem>
-          </SelectContent>
-        </Select>
-
-        {/* Priority Filter */}
-        <Select 
-          value={filters.priority === 'all' ? 'all' : filters.priority.toString()} 
-          onValueChange={(value) => handlePriorityChange(value === 'all' ? 'all' : parseInt(value) as Priority)}
-        >
-          <SelectTrigger className="w-32">
-            <SelectValue placeholder="Priority" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">
-              All Priorities
-            </SelectItem>
-            {PRIORITY_OPTIONS.map((option) => (
-              <SelectItem key={option.value} value={option.value.toString()}>
-                <div className="flex items-center gap-2">
-                  <div className={`w-2 h-2 rounded-full ${option.color}`} />
-                  {option.label} ({taskCounts.byPriority[option.value] || 0})
-                </div>
+        <div className="flex flex-col sm:flex-row gap-2">
+          {/* Status Filter */}
+          <Select value={filters.status} onValueChange={handleStatusChange}>
+            <SelectTrigger className="w-full sm:w-32">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">
+                All ({taskCounts.total})
               </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+              <SelectItem value="pending">
+                Pending ({taskCounts.pending})
+              </SelectItem>
+              <SelectItem value="completed">
+                Completed ({taskCounts.completed})
+              </SelectItem>
+            </SelectContent>
+          </Select>
 
-        {/* Clear Filters Button */}
-        {hasActiveFilters && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={clearFilters}
-            className="h-8 px-2 text-muted-foreground hover:text-foreground"
+          {/* Priority Filter */}
+          <Select 
+            value={filters.priority === 'all' ? 'all' : filters.priority.toString()} 
+            onValueChange={(value) => handlePriorityChange(value === 'all' ? 'all' : parseInt(value) as Priority)}
           >
-            <X className="h-4 w-4 mr-1" />
-            Clear
-          </Button>
-        )}
+            <SelectTrigger className="w-full sm:w-32">
+              <SelectValue placeholder="Priority" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">
+                All Priorities
+              </SelectItem>
+              {PRIORITY_OPTIONS.map((option) => (
+                <SelectItem key={option.value} value={option.value.toString()}>
+                  <div className="flex items-center gap-2">
+                    <div className={`w-2 h-2 rounded-full ${option.color}`} />
+                    {option.label} ({taskCounts.byPriority[option.value] || 0})
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* Clear Filters Button */}
+          {hasActiveFilters && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={clearFilters}
+              className="h-9 px-3 text-muted-foreground hover:text-foreground w-full sm:w-auto"
+            >
+              <X className="h-4 w-4 mr-1" />
+              Clear Filters
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Active Filter Badges */}
       {hasActiveFilters && (
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {filters.status !== 'all' && (
             <Badge variant="secondary" className="text-xs">
               Status: {filters.status}
