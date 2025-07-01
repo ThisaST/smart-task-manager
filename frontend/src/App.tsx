@@ -1,4 +1,4 @@
-import { TaskListContainer } from '@/modules/dashboard'
+import { DashboardContainer } from '@/modules/dashboard'
 import { ThemeToggle } from '@/shared'
 import { useThemeInitializer } from '@/shared/hooks/useThemeInitializer'
 import { Toaster } from '@/components/ui/sonner'
@@ -30,7 +30,7 @@ function App() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 py-6">
-        <TaskListContainer />
+        <DashboardContainer />
       </main>
 
       {/* Toast Notifications */}
