@@ -24,6 +24,7 @@
     "@tailwindcss/vite": "^4.1.11",
     "@tanstack/react-table": "^8.21.3",
     "@tanstack/react-virtual": "^3.13.12",
+    "@types/react-router-dom": "^5.3.3",
     "@types/react-window": "^1.8.8",
     "@types/recharts": "^1.8.29",
     "class-variance-authority": "^0.7.1",

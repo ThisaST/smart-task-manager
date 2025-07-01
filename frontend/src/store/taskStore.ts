@@ -1,8 +1,8 @@
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
-import type { Task, CreateTaskInput, FilterConfig } from '../modules/dashboard/types/task.types'
-import { Priority } from '../modules/dashboard/types/task.types'
+import type { Task, CreateTaskInput, FilterConfig } from '../modules/tasks/types/task.types'
+import { Priority } from '../modules/tasks/types/task.types'
 
 interface TaskState {
   tasks: Task[]
@@ -288,7 +288,7 @@ export const useTaskStore = create<TaskStore>()(
         }),
 
         updateTask: (updatedTask) => set((state) => {
-          const index = state.tasks.findIndex(t => t.id === updatedTask.id)
+          const index = state.tasks.findIndex((t: Task) => t.id === updatedTask.id)
           if (index !== -1) {
             state.tasks[index] = {
               ...updatedTask,
@@ -298,14 +298,14 @@ export const useTaskStore = create<TaskStore>()(
         }),
 
         deleteTask: (taskId) => set((state) => {
-          const index = state.tasks.findIndex(task => task.id === taskId)
+          const index = state.tasks.findIndex((task: Task) => task.id === taskId)
           if (index !== -1) {
             state.tasks.splice(index, 1)
           }
         }),
 
         toggleTaskComplete: (taskId) => set((state) => {
-          const task = state.tasks.find(t => t.id === taskId)
+          const task = state.tasks.find((t: Task) => t.id === taskId)
           if (task) {
             task.completed = !task.completed
             task.modifiedDate = new Date()
@@ -374,7 +374,7 @@ export const useTaskStore = create<TaskStore>()(
           tasks.splice(hoverIndex, 0, draggedTask)
           
           // Update the order property for all tasks to reflect new positions
-          tasks.forEach((task, index) => {
+          tasks.forEach((task: Task, index: number) => {
             task.order = index
           })
           

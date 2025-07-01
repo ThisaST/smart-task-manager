@@ -20,11 +20,14 @@
     "paths": {
       "@/*": ["src/*"],
       "@/modules/*": ["src/modules/*"],
+      "@/modules/dashboard": ["src/modules/dashboard"],
+      "@/modules/tasks": ["src/modules/tasks"],
       "@/shared/*": ["src/shared/*"],
       "@/store/*": ["src/store/*"],
       "@/utils/*": ["src/utils/*"],
       "@/types/*": ["src/types/*"],
-      "@/components/*": ["src/components/*"]
+      "@/components/*": ["src/components/*"],
+      "@/pages/*": ["src/pages/*"]
     },
 
     /* Linting */

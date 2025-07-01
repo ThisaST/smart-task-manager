@@ -302,16 +302,7 @@ export function TaskListContainer() {
     <div className="p-6 space-y-6 bg-background min-h-screen">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Tasks</h1>
-          <p className="text-muted-foreground mt-1">
-            {tasks.length === 0 
-              ? "No tasks yet. Create your first task!" 
-              : `${filteredTasks.filter(t => !t.completed).length} of ${filteredTasks.length} tasks pending`
-            }
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
           {/* View Mode Toggle */}
           <div className="flex items-center border rounded-lg p-1">
             <Button
@@ -333,6 +324,14 @@ export function TaskListContainer() {
               Drag & Drop
             </Button>
           </div>
+          <p className="text-muted-foreground">
+            {tasks.length === 0 
+              ? "No tasks yet. Create your first task!" 
+              : `${filteredTasks.filter(t => !t.completed).length} of ${filteredTasks.length} tasks pending`
+            }
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
           <Button 
             onClick={handleCreate}
             className="bg-primary text-primary-foreground hover:bg-primary/90"

@@ -1,41 +1,27 @@
-import { DashboardContainer } from '@/modules/dashboard'
-import { ThemeToggle } from '@/shared'
-import { useThemeInitializer } from '@/shared/hooks/useThemeInitializer'
-import { Toaster } from '@/components/ui/sonner'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { Navigation } from '@/shared/components/Navigation'
+import { DashboardPage } from '@/pages/DashboardPage'
+import { TasksPage } from '@/pages/TasksPage'
+import { ThemeInitializer } from '@/shared/components/ThemeInitializer'
+import './index.css'
 
 /**
  * Main App component with theme system integration
  */
 function App() {
-  // Initialize theme system
-  useThemeInitializer()
-
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      {/* Header */}
-      <header className="bg-card shadow-sm border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-card-foreground">
-              Task Manager
-            </h1>
-            
-            {/* Theme Toggle */}
-            <div className="flex items-center gap-4">
-              <ThemeToggle variant="combo" />
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 py-6">
-        <DashboardContainer />
-      </main>
-
-      {/* Toast Notifications */}
-      <Toaster />
-    </div>
+    <Router>
+      <ThemeInitializer />
+      <div className="min-h-screen bg-background text-foreground">
+        <Navigation />
+        <main className="pb-8">
+          <Routes>
+            <Route path="/" element={<DashboardPage />} />
+            <Route path="/tasks" element={<TasksPage />} />
+          </Routes>
+        </main>
+      </div>
+    </Router>
   )
 }
 
