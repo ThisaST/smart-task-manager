@@ -146,7 +146,7 @@ export const TaskList = memo<TaskListProps>(({
               <div
                 key={header.id}
                 className={cn(
-                  "px-4 py-3 text-left text-sm font-medium text-muted-foreground bg-muted/30",
+                  "px-4 py-3 text-left text-sm font-medium text-foreground bg-muted/30",
                   header.id === 'title' && "flex-1",
                   header.id === 'select' && "w-12",
                   header.id === 'priority' && "w-24",

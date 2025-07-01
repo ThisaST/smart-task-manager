@@ -7,6 +7,7 @@ export { TaskListContainer } from './containers/TaskListContainer'
 export { TaskList } from './components/TaskList'
 export { TaskCreateForm } from './components/TaskCreateForm'
 export { TaskCreateModal } from './components/TaskCreateModal'
+export { TaskFilterBar } from './components/TaskFilterBar'
 export { TaskTableRow } from './components/TaskTableRow'
 export { PriorityBadge } from './components/PriorityBadge'
 

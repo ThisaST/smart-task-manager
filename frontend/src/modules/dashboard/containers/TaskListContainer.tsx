@@ -1,9 +1,10 @@
 import { useEffect, useCallback, useMemo, useState } from "react"
 import { useTaskStore } from "@/store/taskStore"
 import { TaskCreateModal } from "../components/TaskCreateModal"
+import { TaskFilterBar } from "../components/TaskFilterBar"
 import { Button } from "@/components/ui/button"
 import { Plus, Trash2, Edit3, ChevronUp, ChevronDown, ChevronsUpDown } from "lucide-react"
-import type { Task } from "../types/task.types"
+import type { Task, FilterConfig, Priority } from "../types/task.types"
 import { format, isToday, isPast } from 'date-fns'
 import { useTaskOperations } from '../hooks/useTaskOperations'
 import { Badge } from '@/components/ui/badge'
@@ -43,6 +44,13 @@ export function TaskListContainer() {
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedTask, setSelectedTask] = useState<Task | undefined>(undefined)
+
+  // Filter state
+  const [filters, setFilters] = useState<FilterConfig>({
+    status: 'all',
+    priority: 'all',
+    searchQuery: ''
+  })
 
   // Sorting state
   const [sortConfig, setSortConfig] = useState<SortConfig>({
@@ -117,7 +125,7 @@ export function TaskListContainer() {
       <Button
         variant="ghost"
         size="sm"
-        className="h-8 p-0 font-semibold hover:bg-transparent text-muted-foreground hover:text-foreground"
+        className="h-8 p-0 font-semibold hover:bg-muted/50 text-foreground"
         onClick={() => handleSort(field)}
       >
         {children}
@@ -146,8 +154,36 @@ export function TaskListContainer() {
     }
   }, [])
 
+  // Calculate task counts for filter bar
+  const taskCounts = useMemo(() => {
+    const total = tasks.length
+    const completed = tasks.filter(task => task.completed).length
+    const pending = total - completed
+    
+    const byPriority = tasks.reduce((acc, task) => {
+      acc[task.priority] = (acc[task.priority] || 0) + 1
+      return acc
+    }, {} as Record<Priority, number>)
+
+    return { total, completed, pending, byPriority }
+  }, [tasks])
+
+  // Apply filters to tasks
+  const filteredTasks = useMemo(() => {
+    return tasks.filter(task => {
+      // Status filter
+      if (filters.status === 'completed' && !task.completed) return false
+      if (filters.status === 'pending' && task.completed) return false
+      
+      // Priority filter
+      if (filters.priority !== 'all' && task.priority !== filters.priority) return false
+      
+      return true
+    })
+  }, [tasks, filters])
+
   const sortedTasks = useMemo(() => {
-    const sorted = [...tasks]
+    const sorted = [...filteredTasks]
 
     if (sortConfig.direction) {
       sorted.sort((a, b) => {
@@ -207,7 +243,7 @@ export function TaskListContainer() {
     }
 
     return sorted
-  }, [tasks, sortConfig])
+  }, [filteredTasks, sortConfig])
 
   if (isLoading) {
     return (
@@ -261,7 +297,7 @@ export function TaskListContainer() {
           <p className="text-muted-foreground mt-1">
             {tasks.length === 0 
               ? "No tasks yet. Create your first task!" 
-              : `${tasks.filter(t => !t.completed).length} of ${tasks.length} tasks pending`
+              : `${filteredTasks.filter(t => !t.completed).length} of ${filteredTasks.length} tasks pending`
             }
           </p>
         </div>
@@ -274,6 +310,15 @@ export function TaskListContainer() {
         </Button>
       </div>
 
+      {/* Filter Bar */}
+      {tasks.length > 0 && (
+        <TaskFilterBar
+          filters={filters}
+          onFiltersChange={setFilters}
+          taskCounts={taskCounts}
+        />
+      )}
+
       {/* Tasks Table */}
       {sortedTasks.length === 0 ? (
         <div className="text-center py-12">
@@ -281,15 +326,24 @@ export function TaskListContainer() {
             <div className="w-16 h-16 mx-auto mb-4 opacity-50 rounded-full bg-muted flex items-center justify-center">
               <Plus className="w-8 h-8" />
             </div>
-            <h3 className="text-lg font-semibold">No tasks yet</h3>
-            <p className="text-sm">Create your first task to get started!</p>
+            {tasks.length === 0 ? (
+              <>
+                <h3 className="text-lg font-semibold">No tasks yet</h3>
+                <p className="text-sm">Create your first task to get started!</p>
+              </>
+            ) : (
+              <>
+                <h3 className="text-lg font-semibold">No tasks match your filters</h3>
+                <p className="text-sm">Try adjusting your filters to see more tasks</p>
+              </>
+            )}
           </div>
         </div>
       ) : (
         <div className="bg-card border rounded-lg overflow-hidden shadow-sm">
           <Table>
                           <TableHeader>
-                <TableRow className="bg-muted/50">
+                <TableRow className="bg-muted/30 border-b-2">
                   <SortableHeader field={SortField.COMPLETED} className="w-12">
                     <span className="sr-only">Status</span>
                   </SortableHeader>
@@ -313,7 +367,7 @@ export function TaskListContainer() {
                   <TableRow 
                     key={task.id} 
                     className={cn(
-                      "cursor-pointer hover:bg-muted/50 transition-colors",
+                      "cursor-pointer hover:bg-muted/30 transition-colors border-b",
                       task.completed && "opacity-60"
                     )}
                     onClick={() => handleEdit(task)}
@@ -345,8 +399,11 @@ export function TaskListContainer() {
                     </TableCell>
                     <TableCell>
                       <Badge 
-                        variant={dueDateInfo.isOverdue ? "destructive" : dueDateInfo.isToday ? "default" : "secondary"}
-                        className="font-medium"
+                        variant={dueDateInfo.isOverdue ? "destructive" : dueDateInfo.isToday ? "default" : "outline"}
+                        className={cn(
+                          "font-medium",
+                          !dueDateInfo.isOverdue && !dueDateInfo.isToday && "!bg-slate-200 !text-slate-800 !border-slate-300 dark:!bg-slate-600 dark:!text-slate-200 dark:!border-slate-500"
+                        )}
                       >
                         {dueDateInfo.text}
                       </Badge>

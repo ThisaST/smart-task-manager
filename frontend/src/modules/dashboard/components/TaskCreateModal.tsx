@@ -21,9 +21,9 @@ export function TaskCreateModal({ task, open, onOpenChange }: TaskCreateModalPro
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto bg-card text-card-foreground border-border shadow-xl backdrop-blur-sm">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 text-foreground border shadow-xl">
         <DialogHeader className="space-y-3">
-          <DialogTitle className="text-xl font-semibold text-card-foreground">
+          <DialogTitle className="text-xl font-semibold text-foreground">
             {isEditMode ? "Edit Task" : "Create New Task"}
           </DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground">
