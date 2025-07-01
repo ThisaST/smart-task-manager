@@ -16,22 +16,26 @@ export const useThemeStore = create<ThemeStore>()(
       mode: ThemeValue.SYSTEM as ThemeMode,
       systemTheme: getSystemTheme(),
       
-      // Computed properties
       get resolvedTheme() {
-        const { mode, systemTheme } = get()
+        const state = get()
+        const mode = state?.mode ?? ThemeValue.SYSTEM
+        const systemTheme = state?.systemTheme ?? getSystemTheme()
         return resolveTheme(mode, systemTheme)
       },
       
       get isDark() {
-        return get().resolvedTheme === ThemeValue.DARK
+        const state = get()
+        return state?.resolvedTheme === ThemeValue.DARK
       },
       
       get isLight() {
-        return get().resolvedTheme === ThemeValue.LIGHT
+        const state = get()
+        return state?.resolvedTheme === ThemeValue.LIGHT
       },
       
       get isSystem() {
-        return get().mode === ThemeValue.SYSTEM
+        const state = get()
+        return state?.mode === ThemeValue.SYSTEM
       },
       
       // Actions
@@ -70,15 +74,18 @@ export const useThemeStore = create<ThemeStore>()(
       // Only persist the mode, not computed values
       partialize: (state) => ({ mode: state.mode }),
       // Initialize system theme detection after hydration
-      onRehydrateStorage: () => (state) => {
-        if (state && typeof window !== 'undefined') {
-          // Update system theme on hydration
-          const currentSystemTheme = getSystemTheme()
-          state.systemTheme = currentSystemTheme
+      onRehydrateStorage: () => (state, error) => {
+        if (error || !state || typeof window === 'undefined') return
+        
+        const currentSystemTheme = getSystemTheme()
+        
+        // Use setTimeout to ensure React has time to mount
+        setTimeout(() => {
+          // Update system theme
+          useThemeStore.setState({ systemTheme: currentSystemTheme })
           
-          // Apply theme immediately - React will handle this quickly
           applyTheme(state.mode, currentSystemTheme)
-        }
+        }, 0)
       },
     }
   )

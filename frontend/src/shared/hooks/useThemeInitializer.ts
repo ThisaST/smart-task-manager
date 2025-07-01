@@ -22,7 +22,15 @@ export const useThemeInitializer = (): void => {
 
     // Ensure theme is applied on mount (handles initial load)
     const currentSystemTheme = getSystemTheme()
-    applyTheme(mode, currentSystemTheme)
+    
+    const root = document.documentElement
+    const expectedDark = mode === ThemeValue.DARK || 
+      (mode === ThemeValue.SYSTEM && currentSystemTheme === ThemeValue.DARK)
+    const isDarkApplied = root.classList.contains('dark')
+    
+    if (expectedDark !== isDarkApplied) {
+      applyTheme(mode, currentSystemTheme)
+    }
 
     // Listen for system theme changes
     mediaQuery.addEventListener('change', handleSystemThemeChange)

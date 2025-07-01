@@ -14,6 +14,45 @@
         html { color-scheme: light; }
       }
     </style>
+    <script>
+      // Early theme initialization to prevent flash
+      (function() {
+        try {
+          // Get theme from localStorage
+          const stored = localStorage.getItem('task-manager-theme');
+          if (!stored) return;
+          
+          const parsed = JSON.parse(stored);
+          const mode = parsed.state?.mode || parsed.mode;
+          if (!mode) return;
+          
+          // Get system theme
+          const systemIsDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          
+          // Determine if we should apply dark theme
+          let shouldBeDark = false;
+          if (mode === 'dark') {
+            shouldBeDark = true;
+          } else if (mode === 'system') {
+            shouldBeDark = systemIsDark;
+          }
+          
+          // Apply theme immediately
+          const root = document.documentElement;
+          if (shouldBeDark) {
+            root.classList.add('dark');
+          } else {
+            root.classList.remove('dark');
+          }
+          
+          // Set data attributes for consistency
+          root.setAttribute('data-theme', mode);
+          root.setAttribute('data-resolved-theme', shouldBeDark ? 'dark' : 'light');
+        } catch (e) {
+          // Silently fail - React will handle it
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
