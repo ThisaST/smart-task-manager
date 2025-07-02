@@ -1,7 +1,8 @@
 import { memo, useCallback } from "react"
 import { Checkbox } from "@/components/ui/checkbox"
+import { Button } from "@/components/ui/button"
 import { PriorityBadge } from "./PriorityBadge"
-import { Calendar } from "lucide-react"
+import { Calendar, Edit3, Trash2 } from "lucide-react"
 import { format } from "date-fns"
 import { cn } from "@/utils/utils"
 import type { Task } from "../types/task.types"
@@ -11,6 +12,7 @@ interface TaskTableRowProps {
   style?: React.CSSProperties
   onToggleComplete: (taskId: string) => void
   onEdit: (task: Task) => void
+  onDelete?: (taskId: string) => void
   className?: string
 }
 
@@ -19,20 +21,34 @@ export const TaskTableRow = memo<TaskTableRowProps>(({
   style, 
   onToggleComplete, 
   onEdit,
+  onDelete,
   className
 }) => {
   const handleRowClick = useCallback((e: React.MouseEvent) => {
-    // Don't trigger edit when clicking checkbox
+    // Don't trigger edit when clicking checkbox or action buttons
     const target = e.target as HTMLElement
-    if (target.closest('[role="checkbox"]')) {
+    if (target.closest('.checkbox-container') || target.closest('button') || target.closest('input[type="checkbox"]')) {
       return
     }
     onEdit(task)
   }, [onEdit, task])
 
-  const handleCheckboxChange = useCallback(() => {
+  const handleCheckboxChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    e.stopPropagation()
     onToggleComplete(task.id)
   }, [onToggleComplete, task.id])
+
+  const handleEdit = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation()
+    onEdit(task)
+  }, [onEdit, task])
+
+  const handleDelete = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (onDelete) {
+      onDelete(task.id)
+    }
+  }, [onDelete, task.id])
 
   return (
     <div
@@ -44,7 +60,7 @@ export const TaskTableRow = memo<TaskTableRowProps>(({
         onClick={handleRowClick}
       >        
         {/* Checkbox */}
-        <div className="flex items-center justify-center w-12">
+        <div className="flex items-center justify-center w-12 checkbox-container">
           <Checkbox
             checked={task.completed}
             onChange={handleCheckboxChange}
@@ -82,6 +98,32 @@ export const TaskTableRow = memo<TaskTableRowProps>(({
           ) : (
             <span className="text-muted-foreground text-xs">No due date</span>
           )}
+        </div>
+
+        {/* Actions */}
+        <div className="w-20 px-2">
+          <div className="flex items-center justify-end gap-1 group-hover:opacity-100 transition-opacity">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleEdit}
+              className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
+              aria-label={`Edit task ${task.title}`}
+            >
+              <Edit3 className="w-3 h-3" />
+            </Button>
+            {onDelete && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleDelete}
+                className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
+                aria-label={`Delete task ${task.title}`}
+              >
+                <Trash2 className="w-3 h-3" />
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </div>

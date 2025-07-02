@@ -1,14 +1,22 @@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { TaskCreateForm } from "./TaskCreateForm"
-import type { Task } from "../types/task.types"
+import type { Task, CreateTaskInput, UpdateTaskInput } from "../types/task.types"
 
 interface TaskCreateModalProps {
   task?: Task
   open: boolean
   onOpenChange: (open: boolean) => void
+  onSubmit?: (taskData: CreateTaskInput | UpdateTaskInput) => void
+  isSubmitting?: boolean
 }
 
-export function TaskCreateModal({ task, open, onOpenChange }: TaskCreateModalProps) {
+export function TaskCreateModal({ 
+  task, 
+  open, 
+  onOpenChange, 
+  onSubmit,
+  isSubmitting = false
+}: TaskCreateModalProps) {
   const isEditMode = !!task
   
   const handleSuccess = () => {
@@ -39,6 +47,8 @@ export function TaskCreateModal({ task, open, onOpenChange }: TaskCreateModalPro
             task={task}
             onSuccess={handleSuccess}
             onCancel={handleCancel}
+            onSubmit={onSubmit}
+            isSubmitting={isSubmitting}
           />
         </div>
       </DialogContent>

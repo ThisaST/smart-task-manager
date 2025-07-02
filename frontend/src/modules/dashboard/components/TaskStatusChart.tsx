@@ -6,16 +6,55 @@ import {
   ResponsiveContainer
 } from 'recharts'
 import { Card } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
+import type { TaskStatistics } from '@/shared/types/api'
 
 interface TaskStatusChartProps {
-  statusData: Array<{
-    name: string
-    value: number
-    color: string
-  }>
+  statistics?: TaskStatistics
+  isLoading?: boolean
 }
 
-export function TaskStatusChart({ statusData }: TaskStatusChartProps) {
+export function TaskStatusChart({ statistics, isLoading }: TaskStatusChartProps) {
+  if (isLoading) {
+    return (
+      <Card className="p-6">
+        <Skeleton className="h-6 w-48 mb-4" />
+        <div className="h-64 flex items-center justify-center">
+          <Skeleton className="w-32 h-32 rounded-full" />
+        </div>
+      </Card>
+    )
+  }
+
+  if (!statistics) {
+    return (
+      <Card className="p-6">
+        <h3 className="text-lg font-semibold mb-4">Task Status Distribution</h3>
+        <div className="h-64 flex items-center justify-center text-muted-foreground">
+          <p>No data available</p>
+        </div>
+      </Card>
+    )
+  }
+
+  const statusData = [
+    {
+      name: 'Completed',
+      value: statistics.completed,
+      color: '#22c55e'
+    },
+    {
+      name: 'Pending',
+      value: statistics.pending,
+      color: '#eab308'
+    },
+    {
+      name: 'Overdue',
+      value: statistics.overdue,
+      color: '#ef4444'
+    }
+  ].filter(item => item.value > 0)
+
   const RADIAN = Math.PI / 180
   const renderCustomizedLabel = (entry: {
     cx?: number;

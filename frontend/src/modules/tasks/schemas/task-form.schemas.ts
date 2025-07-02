@@ -1,7 +1,12 @@
 import { z } from 'zod';
 import { isFuture } from 'date-fns';
-import { PrioritySchema } from '../types/task.types';
+import { Priority } from '../types/task.types';
 import { TASK_FORM_CONSTANTS } from '../constants/task.constants';
+
+/**
+ * Zod schema for Priority enum validation
+ */
+const PrioritySchema = z.nativeEnum(Priority);
 
 /**
  * Task form validation schema with comprehensive validation rules

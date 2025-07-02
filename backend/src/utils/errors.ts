@@ -21,7 +21,6 @@ export class ApiError extends Error {
     this.code = code;
     this.details = details;
 
-    // Maintain proper stack trace for where our error was thrown
     Error.captureStackTrace(this, this.constructor);
   }
 }

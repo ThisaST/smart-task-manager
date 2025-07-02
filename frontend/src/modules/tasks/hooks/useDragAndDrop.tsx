@@ -1,78 +1,31 @@
-import { useCallback } from 'react';
-import { useTaskStore } from '@/store/taskStore';
-import { 
-  DndContext, 
-  closestCenter, 
-  KeyboardSensor, 
-  PointerSensor, 
-  useSensor, 
-  useSensors 
-} from '@dnd-kit/core';
-import { 
-  SortableContext, 
-  sortableKeyboardCoordinates, 
-  verticalListSortingStrategy 
-} from '@dnd-kit/sortable';
-import type { DragEndEvent } from '@dnd-kit/core';
+import { useState, useCallback } from 'react';
 import type { Task } from '../types/task.types';
 
-/**
- * Custom hook for drag and drop functionality using @dnd-kit
- * Provides sensors, context, and handlers for task reordering
- */
-export const useDragAndDrop = (displayedTasks: Task[]) => {
-  const { tasks: allTasks, reorderTasks } = useTaskStore();
+interface UseDragAndDropProps {
+  tasks: Task[];
+  onReorderTasks?: (dragIndex: number, hoverIndex: number) => void;
+}
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8, // Require 8px of movement before activating
-      },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
+export function useDragAndDrop({ tasks, onReorderTasks }: UseDragAndDropProps) {
+  const [draggedTask, setDraggedTask] = useState<Task | null>(null);
 
-  const handleDragEnd = useCallback((event: DragEndEvent) => {
-    const { active, over } = event;
+  const handleDragStart = useCallback((task: Task) => {
+    setDraggedTask(task);
+  }, []);
 
-    if (active.id !== over?.id && over) {
-      // Find the indices in the displayed tasks array (what user sees)
-      const displayedOldIndex = displayedTasks.findIndex(task => task.id === active.id);
-      const displayedNewIndex = displayedTasks.findIndex(task => task.id === over.id);
-      
-      if (displayedOldIndex !== -1 && displayedNewIndex !== -1) {
-        // Find the corresponding indices in the full tasks array
-        const fullOldIndex = allTasks.findIndex(task => task.id === active.id);
-        const fullNewIndex = allTasks.findIndex(task => task.id === over.id);
-        
-        if (fullOldIndex !== -1 && fullNewIndex !== -1) {
-          reorderTasks(fullOldIndex, fullNewIndex);
-        }
-      }
-    }
-  }, [displayedTasks, allTasks, reorderTasks]);
+  const handleDragEnd = useCallback(() => {
+    setDraggedTask(null);
+  }, []);
 
-  const DragDropProvider = useCallback(({ children }: { children: React.ReactNode }) => (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCenter}
-      onDragEnd={handleDragEnd}
-    >
-      <SortableContext 
-        items={displayedTasks.map(t => t.id)} 
-        strategy={verticalListSortingStrategy}
-      >
-        {children}
-      </SortableContext>
-    </DndContext>
-  ), [sensors, handleDragEnd, displayedTasks]);
+  const moveTask = useCallback((dragIndex: number, hoverIndex: number) => {
+    onReorderTasks?.(dragIndex, hoverIndex);
+  }, [onReorderTasks]);
 
   return {
-    DragDropProvider,
-    sensors,
+    draggedTask,
+    handleDragStart,
     handleDragEnd,
-    taskIds: displayedTasks.map(t => t.id),
+    moveTask,
+    allTasks: tasks,
   };
-}; 
+} 

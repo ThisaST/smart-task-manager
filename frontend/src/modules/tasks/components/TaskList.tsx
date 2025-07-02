@@ -1,4 +1,4 @@
-import { memo, useMemo, useRef } from "react"
+import { memo, useMemo, useRef, useEffect } from "react"
 import {
   createColumnHelper,
   flexRender,
@@ -16,24 +16,32 @@ interface TaskListProps {
   tasks: Task[]
   onToggleComplete: (taskId: string) => void
   onEdit: (task: Task) => void
+  onDelete?: (taskId: string) => void
   isLoading?: boolean
   error?: string | null
   className?: string
+  onLoadMore?: () => void
+  hasNextPage?: boolean
+  isFetchingNextPage?: boolean
 }
 
 // Create column helper for type safety
 const columnHelper = createColumnHelper<Task>()
 
 /**
- * TaskList - Clean virtualized table component
+ * TaskList - Clean virtualized table component with API integration
  */
 export const TaskList = memo<TaskListProps>(({
   tasks,
   onToggleComplete,
   onEdit,
+  onDelete,
   isLoading = false,
   error = null,
-  className
+  className,
+  onLoadMore,
+  hasNextPage = false,
+  isFetchingNextPage = false
 }) => {
   const tableContainerRef = useRef<HTMLDivElement>(null)
 
@@ -79,6 +87,12 @@ export const TaskList = memo<TaskListProps>(({
         const dateB = rowB.original.dueDate ? new Date(rowB.original.dueDate).getTime() : 0
         return dateA - dateB
       }
+    }),
+    columnHelper.display({
+      id: 'actions',
+      size: 80,
+      header: 'Actions',
+      cell: () => null,
     })
   ], [])
 
@@ -102,6 +116,25 @@ export const TaskList = memo<TaskListProps>(({
   })
 
   const virtualItems = virtualizer.getVirtualItems()
+
+  // Infinite scrolling: Load more when scrolled near bottom
+  useEffect(() => {
+    if (!onLoadMore || !hasNextPage || isFetchingNextPage) return
+
+    const container = tableContainerRef.current
+    if (!container) return
+
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = container
+      // Trigger load more when within 100px of bottom
+      if (scrollHeight - scrollTop - clientHeight < 100) {
+        onLoadMore()
+      }
+    }
+
+    container.addEventListener('scroll', handleScroll)
+    return () => container.removeEventListener('scroll', handleScroll)
+  }, [onLoadMore, hasNextPage, isFetchingNextPage])
 
   if (isLoading) {
     return (
@@ -150,7 +183,8 @@ export const TaskList = memo<TaskListProps>(({
                   header.id === 'title' && "flex-1",
                   header.id === 'select' && "w-12",
                   header.id === 'priority' && "w-24",
-                  header.id === 'dueDate' && "w-32"
+                  header.id === 'dueDate' && "w-32",
+                  header.id === 'actions' && "w-20"
                 )}
               >
                 {header.isPlaceholder ? null : (
@@ -185,6 +219,7 @@ export const TaskList = memo<TaskListProps>(({
                 task={task}
                 onToggleComplete={onToggleComplete}
                 onEdit={onEdit}
+                onDelete={onDelete}
                 style={{
                   position: 'absolute',
                   top: 0,

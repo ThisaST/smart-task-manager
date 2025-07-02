@@ -8,75 +8,74 @@ import { DatePicker } from "@/components/ui/date-picker"
 import { Label } from "@/components/ui/label"
 import { cn } from "@/utils/utils"
 import { Priority } from "../types/task.types"
-import type { CreateTaskInput, Task } from "../types/task.types"
-import { TaskFormSchema, TaskEditSchema, type TaskFormData, type TaskEditData, PriorityOptions, TaskFormDefaults } from "../schemas/task-form.schemas"
-import { useTaskOperations } from "../hooks/useTaskOperations"
+import type { CreateTaskInput, UpdateTaskInput, Task } from "../types/task.types"
+import { TaskFormSchema, type TaskFormData, PriorityOptions, TaskFormDefaults } from "../schemas/task-form.schemas"
 
 interface TaskCreateFormProps {
   task?: Task
   onCancel: () => void
   onSuccess?: () => void
+  onSubmit?: (taskData: CreateTaskInput | UpdateTaskInput) => void
+  isSubmitting?: boolean
 }
 
-export function TaskCreateForm({ task, onCancel, onSuccess }: TaskCreateFormProps) {
-  const { addTask, updateTask } = useTaskOperations()
+export function TaskCreateForm({ 
+  task, 
+  onCancel, 
+  onSuccess, 
+  onSubmit,
+  isSubmitting: externalIsSubmitting = false
+}: TaskCreateFormProps) {
   const isEditMode = !!task
   
-  const schema = isEditMode ? TaskEditSchema : TaskFormSchema
-  type FormData = typeof isEditMode extends true ? TaskEditData : TaskFormData
-  
+  // Use TaskFormData for both create and edit modes
   const {
     register,
     control,
     handleSubmit,
-    formState: { errors, isValid, isDirty, isSubmitting },
+    formState: { errors, isValid, isDirty, isSubmitting: formIsSubmitting },
     watch,
     reset,
-  } = useForm<FormData>({
-    resolver: zodResolver(schema),
+  } = useForm<TaskFormData>({
+    resolver: zodResolver(TaskFormSchema),
     defaultValues: isEditMode ? {
       title: task.title,
       description: task.description || "",
-      dueDate: task.dueDate,
+      dueDate: task.dueDate ? new Date(task.dueDate) : new Date(),
       priority: task.priority,
     } : TaskFormDefaults,
     mode: "onChange",
   })
 
+  // Use external submitting state if provided, otherwise use form state
+  const isSubmitting = externalIsSubmitting || formIsSubmitting
+
   const description = watch("description")
   const descriptionLength = description?.length || 0
 
-  // Handle form submission
-  const onFormSubmit: SubmitHandler<FormData> = async (data) => {
+  // Handle form submission with proper typing
+  const onFormSubmit: SubmitHandler<TaskFormData> = async (data) => {
     try {
-      if (isEditMode && task) {
-        // Update existing task
-        const updatedTask: Task = {
-          ...task,
-          title: data.title.trim(),
-          description: data.description?.trim() || undefined,
-          priority: data.priority,
-          dueDate: data.dueDate,
-          modifiedDate: new Date(),
-        }
-        await updateTask(updatedTask)
+      const taskData: CreateTaskInput | UpdateTaskInput = {
+        title: data.title.trim(),
+        description: data.description?.trim() || undefined,
+        priority: data.priority,
+        dueDate: data.dueDate.toISOString(),
+      }
+
+      if (onSubmit) {
+        // Use external submit handler (API integration)
+        onSubmit(taskData)
       } else {
-        // Create new task
-        const cleanedData: CreateTaskInput = {
-          title: data.title.trim(),
-          description: data.description?.trim() || undefined,
-          priority: data.priority,
-          dueDate: data.dueDate,
-        }
-        await addTask(cleanedData)
+        // Fallback for success callback
+        onSuccess?.()
+      }
+      
+      if (!isEditMode) {
         reset()
       }
       
-      // Call success callback
-      onSuccess?.()
-      
     } catch (error) {
-      // Error is already handled by useTaskOperations hook
       console.error('Form submission error:', error)
     }
   }

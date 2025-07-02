@@ -8,15 +8,19 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': '/src',
-      '@/modules/dashboard': '/src/modules/dashboard',
-      '@/modules/tasks': '/src/modules/tasks',
-      '@/modules': '/src/modules',
-      '@/shared': '/src/shared', 
-      '@/store': '/src/store',
-      '@/utils': '/src/utils',
-      '@/types': '/src/types',
       '@/components': '/src/components',
       '@/pages': '/src/pages',
+      '@/shared': '/src/shared',
+      '@/modules': '/src/modules',
+      '@/store': '/src/store',
+      '@/utils': '/src/utils',
     },
+  },
+  define: {
+    // Add default environment variables
+    'import.meta.env.VITE_API_BASE_URL': JSON.stringify('http://localhost:3002/api'),
+  },
+  server: {
+    port: 3000,
   },
 })

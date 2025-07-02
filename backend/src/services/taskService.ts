@@ -5,7 +5,6 @@ import { NotFoundError, ValidationError } from '../utils/errors';
 
 /**
  * Task service layer containing business logic
- * Orchestrates data operations and enforces business rules
  */
 export class TaskService {
   private taskRepository: TaskRepository;
@@ -23,7 +22,6 @@ export class TaskService {
     page: number = 1,
     limit: number = 20
   ): Promise<PaginatedResult<Task>> {
-    // Validate pagination parameters
     if (page < 1) {
       throw new ValidationError('Page must be greater than 0');
     }

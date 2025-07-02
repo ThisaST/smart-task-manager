@@ -1,6 +1,6 @@
-import { z } from 'zod';
-
-
+/**
+ * Priority enumeration matching backend
+ */
 export enum Priority {
   LOW = 1,
   MEDIUM = 2,
@@ -8,68 +8,73 @@ export enum Priority {
 }
 
 /**
- * Zod schema for task priority validation
+ * Task entity type matching backend API
  */
-export const PrioritySchema = z.nativeEnum(Priority);
+export interface Task {
+  id: string;
+  title: string;
+  description?: string;
+  dueDate?: Date | string;
+  priority: Priority;
+  completed: boolean;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+  completedAt?: Date | string;
+  orderIndex: number;
+}
 
 /**
- * Main task entity schema with validation rules
+ * Task creation input (excludes generated fields)
  */
-export const TaskSchema = z.object({
-  id: z.string().uuid(),
-  title: z.string()
-    .min(1, "Title is required")
-    .max(100, "Title must be less than 100 characters"),
-  description: z.string()
-    .max(500, "Description must be less than 500 characters")
-    .optional(),
-  dueDate: z.date(),
-  priority: PrioritySchema,
-  completed: z.boolean().default(false),
-  createdDate: z.date(),
-  modifiedDate: z.date(),
-  order: z.number().int().min(0, "Order must be non-negative").default(0),
-});
+export interface CreateTaskInput {
+  title: string;
+  description?: string;
+  dueDate?: string; // ISO string format
+  priority: Priority;
+}
 
 /**
- * Task creation input schema (excludes generated fields)
+ * Task update input (partial)
  */
-export const CreateTaskSchema = TaskSchema.omit({
-  id: true,
-  completed: true,
-  createdDate: true,
-  modifiedDate: true,
-  order: true,
-});
+export interface UpdateTaskInput {
+  title?: string;
+  description?: string;
+  dueDate?: string; // ISO string format
+  priority?: Priority;
+  completed?: boolean;
+  completedAt?: string; // ISO string format
+}
 
 /**
- * Task update input schema (partial with required id)
+ * Filter configuration for task queries
  */
-export const UpdateTaskSchema = TaskSchema.partial().extend({
-  id: z.string().uuid(),
-});
+export interface FilterConfig {
+  status: 'all' | 'completed' | 'pending';
+  priority: 'all' | Priority;
+  searchQuery?: string;
+}
 
 /**
- * Filter configuration schema
+ * Sort configuration for task queries
  */
-export const FilterConfigSchema = z.object({
-  status: z.enum(['all', 'completed', 'pending']).default('all'),
-  priority: z.union([PrioritySchema, z.literal('all')]).default('all'),
-  searchQuery: z.string().default(''),
-  dateRange: z.object({
-    start: z.date().optional(),
-    end: z.date().optional(),
-  }).optional(),
-});
+export interface SortConfig {
+  field: 'dueDate' | 'priority' | 'createdAt' | 'title' | 'orderIndex';
+  direction: 'asc' | 'desc';
+}
 
-export type Task = z.infer<typeof TaskSchema>;
-export type CreateTaskInput = z.infer<typeof CreateTaskSchema>;
-export type UpdateTaskInput = z.infer<typeof UpdateTaskSchema>;
-export type FilterConfig = z.infer<typeof FilterConfigSchema>;
+/**
+ * Task counts for dashboard and filters
+ */
+export interface TaskCounts {
+  total: number;
+  completed: number;
+  pending: number;
+  byPriority: Record<Priority, number>;
+}
 
-export type TaskStatus = 'all' | 'completed' | 'pending';
-export type PriorityFilter = Priority | 'all';
-
+/**
+ * Component prop types
+ */
 export interface TaskItemProps {
   task: Task;
   index?: number;
@@ -90,4 +95,10 @@ export interface TaskListProps {
   isLoading?: boolean;
   error?: string | null;
   className?: string;
-} 
+}
+
+/**
+ * Legacy type aliases for backward compatibility
+ */
+export type TaskStatus = 'all' | 'completed' | 'pending';
+export type PriorityFilter = Priority | 'all'; 
